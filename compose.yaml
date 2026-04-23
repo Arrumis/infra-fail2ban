@@ -1,0 +1,28 @@
+services:
+  fail2ban:
+    build:
+      context: .
+    restart: always
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    network_mode: host
+    environment:
+      F2B_LOG_TARGET: STDOUT
+      TZ: "${TZ:-Asia/Tokyo}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log/auth.log:/var/log/auth.log:ro
+      - /var/log/syslog:/var/log/syslog:ro
+      - /lib/modules:/lib/modules:ro
+      - /usr/sbin/iptables:/usr/sbin/iptables
+      - /usr/sbin/ip6tables:/usr/sbin/ip6tables
+      - ./action.d:/etc/fail2ban/action.d:ro
+      - ./filter.d:/etc/fail2ban/filter.d:ro
+      - ./jail.local:/etc/fail2ban/jail.local:ro
+      - ./fail2ban.local:/etc/fail2ban/fail2ban.local:ro
+      - ./runtime:/data
+      - "${PROXY_LOG_DIR:-../infra-reverse-proxy/data/log}:/var/log/nginx:ro"
+

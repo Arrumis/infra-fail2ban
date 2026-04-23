@@ -1,0 +1,4 @@
+[Definition]
+# データベースの保存期間を2年(730日)に延長
+# death-penalty(1年BAN)を機能させるため、findtime/bantime(365d)以上の期間が必要
+dbpurgeage = 730d

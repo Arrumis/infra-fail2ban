@@ -1,0 +1,125 @@
+[DEFAULT]
+ignoreip = 127.18.0.0/24 192.168.2.0/24
+interpolation = never
+bantime = 1d
+findtime = 10m
+maxretry = 3
+backend = auto
+
+[wordpress]
+enabled = true
+filter = wordpress
+logpath = /var/log/nginx/access.log
+port = http,https
+banaction = docker-block
+maxretry = 3
+findtime = 30m
+bantime = 1w
+
+[openvpn]
+enabled = true
+filter = openvpn
+logpath = /var/log/syslog
+port = 1194
+banaction = docker-block
+
+[ttrss]
+enabled = true
+filter = ttrss
+logpath = /var/log/nginx/access.log
+banaction = docker-block
+maxretry = 6
+findtime = 30m
+bantime = 1w
+
+[sshd]
+enabled = true
+filter = sshd
+action = iptables-host
+logpath = /var/log/auth.log
+maxretry = 5
+findtime = 1h
+bantime = 1w
+
+[proxy]
+enabled = true
+filter = proxy
+logpath = /var/log/nginx/access.log
+maxretry = 6
+findtime = 30m
+bantime = 1w
+banaction = docker-block
+
+#[munin]
+#enabled = true
+#filter = munin
+#logpath = /var/log/nginx/access.log
+#maxretry = 6
+#findtime = 30m
+#bantime = 1d
+#banaction = docker-block
+
+#Basic認証
+[basic]
+enabled = true
+filter = basic
+logpath = /var/log/nginx/access.log
+maxretry = 6
+findtime = 30m
+bantime = 1w
+banaction = docker-block
+
+[scan-404]
+enabled  = true
+filter   = scan-404
+action   = docker-block
+logpath  = /var/log/nginx/access.log
+maxretry = 15
+findtime = 10m
+bantime  = 1w
+
+[probe-uris]
+enabled  = true
+filter   = probe-uris
+action   = docker-block
+logpath  = /var/log/nginx/access.log
+maxretry = 6
+findtime = 30m
+bantime  = 1w
+
+[malicious-tools]
+enabled  = true
+filter   = malicious-tools
+action   = docker-block
+logpath  = /var/log/nginx/access.log
+maxretry = 2
+findtime = 10m
+bantime  = 1w
+
+[bad-ua]
+enabled  = true
+filter   = bad-ua
+action   = docker-block
+logpath  = /var/log/nginx/access.log
+maxretry = 6
+findtime = 2h
+bantime  = 24h
+
+# 再犯者用長期間ban (recidive jail)
+[recidive]
+enabled = true
+logpath = /var/log/fail2ban.log
+banaction = docker-block
+bantime = 30d
+findtime = 1d
+maxretry = 3
+# 再犯者の再犯者用超長期間ban (death-penalty jail)
+# recidiveで3回BANされたら、1年間BANする
+[death-penalty]
+enabled = true
+logpath = /var/log/fail2ban.log
+filter = death-penalty
+banaction = docker-block
+bantime = 1y
+findtime = 1y
+maxretry = 3
