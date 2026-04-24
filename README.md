@@ -2,6 +2,10 @@
 
 fail2ban を独立リポジトリとして扱うための新しい正本候補です。旧 installer の filter / jail / action をそのまま repo に持ち、proxy の nginx ログだけを外部パスから受け取る形にしています。
 
+## 日本語メモ
+
+GitHub のコミット一覧が英語で分かりにくい場合は、[コミット履歴の日本語メモ](docs/COMMIT_HISTORY_JA.md) を見てください。
+
 ## 起動
 
 ```bash
@@ -27,4 +31,3 @@ docker compose --env-file .env.local up -d --build
 
 - 旧 `inst/fail2ban` の資産を repo 化した段階です
 - Discord 通知連携はまだ別 repo / 別構成へ切り出していません
-
