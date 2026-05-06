@@ -59,7 +59,7 @@ banaction = docker-block
 #bantime = 1d
 #banaction = docker-block
 
-#Basic認証
+# Basic 認証
 [basic]
 enabled = true
 filter = basic
@@ -105,7 +105,7 @@ maxretry = 6
 findtime = 2h
 bantime  = 24h
 
-# 再犯者用長期間ban (recidive jail)
+# 再犯者用の長期 BAN
 [recidive]
 enabled = true
 logpath = /var/log/fail2ban.log
@@ -113,8 +113,8 @@ banaction = docker-block
 bantime = 30d
 findtime = 1d
 maxretry = 3
-# 再犯者の再犯者用超長期間ban (death-penalty jail)
-# recidiveで3回BANされたら、1年間BANする
+# 再犯をさらに繰り返した IP アドレス用の超長期 BAN
+# recidive で 3 回 BAN されたら、1 年間 BAN する
 [death-penalty]
 enabled = true
 logpath = /var/log/fail2ban.log

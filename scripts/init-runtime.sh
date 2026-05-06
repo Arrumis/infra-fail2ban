@@ -4,5 +4,4 @@ set -euo pipefail
 mkdir -p runtime
 touch runtime/.gitkeep
 
-echo "Initialized fail2ban runtime directory."
-
+echo "fail2ban の実行時ディレクトリを初期化しました。"

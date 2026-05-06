@@ -43,7 +43,7 @@ log() {
 
 require_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    log "ERROR: required command not found: $1"
+    log "ERROR: 必要なコマンドが見つかりません: $1"
     exit 1
   fi
 }
@@ -63,7 +63,7 @@ detect_fail2ban_container() {
     F2B_CONTAINER="$(docker ps --format '{{.Names}}' | grep -i fail2ban | head -1 || true)"
   fi
   if [[ -z "${F2B_CONTAINER}" ]]; then
-    log "ERROR: fail2ban container not found"
+    log "ERROR: fail2ban コンテナが見つかりません"
     exit 1
   fi
 }
@@ -88,7 +88,7 @@ build_embed_payload() {
   ban_count="$(jq '[.[] | select(.type == "ban")] | length' <<< "${events_json}")"
   unban_count="$(jq '[.[] | select(.type == "unban")] | length' <<< "${events_json}")"
 
-  title="Fail2ban update: ${ban_count} ban, ${unban_count} unban"
+  title="fail2ban 更新: BAN ${ban_count} 件、解除 ${unban_count} 件"
   color=16753920
   if [[ "${ban_count}" -gt 0 && "${unban_count}" -eq 0 ]]; then
     color=15158332
@@ -97,7 +97,7 @@ build_embed_payload() {
   fi
 
   description="$(
-    jq -r '.[] | if .type == "ban" then "Ban `" + .ip + "` [" + .jail + "]" else "Unban `" + .ip + "` [" + .jail + "]" end' <<< "${events_json}" |
+    jq -r '.[] | if .type == "ban" then "BAN `" + .ip + "` [" + .jail + "]" else "解除 `" + .ip + "` [" + .jail + "]" end' <<< "${events_json}" |
       head -50 |
       sed 's/^/- /'
   )"
@@ -106,7 +106,7 @@ build_embed_payload() {
     --arg title "${title}" \
     --arg description "${description}" \
     --arg timestamp "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
-    --arg footer "Fail2ban Discord notifier" \
+    --arg footer "fail2ban Discord 通知" \
     --argjson color "${color}" \
     '{embeds: [{title: $title, description: $description, color: $color, timestamp: $timestamp, footer: {text: $footer}}]}'
 }
@@ -115,12 +115,12 @@ send_discord() {
   local payload="$1"
 
   if [[ "${DRY_RUN}" == "true" ]]; then
-    log "INFO: dry-run enabled; Discord payload not sent"
+    log "INFO: 試験実行のため Discord へ送信しません"
     return 0
   fi
 
   if [[ -z "${WEBHOOK_URL}" ]]; then
-    log "INFO: DISCORD_WEBHOOK_URL is not set; notification skipped"
+    log "INFO: DISCORD_WEBHOOK_URL が未設定のため通知を省略しました"
     return 0
   fi
 
@@ -134,11 +134,11 @@ send_discord() {
   )"
 
   if [[ "${status}" == "204" ]]; then
-    log "INFO: Discord notification sent"
+    log "INFO: Discord 通知を送信しました"
     return 0
   fi
 
-  log "ERROR: Discord notification failed with HTTP ${status}"
+  log "ERROR: Discord 通知に失敗しました。HTTP ${status}"
   return 1
 }
 
@@ -147,14 +147,14 @@ main() {
   require_command jq
   require_command curl
 
-  log "INFO: docker-fail2ban-discord.sh start"
+  log "INFO: docker-fail2ban-discord.sh 開始"
   detect_fail2ban_container
 
   mkdir -p "${STATE_DIR}"
   if command -v flock >/dev/null 2>&1; then
     exec 9>"${LOCK_FILE}"
     if ! flock -n 9; then
-      log "INFO: another notifier process is running; exiting"
+      log "INFO: 別の通知処理が実行中のため終了します"
       exit 0
     fi
   fi
@@ -166,7 +166,7 @@ main() {
   local previous_json current_bans events_json new_json
   previous_json="$(cat "${BAN_DETAIL_FILE}")"
   if ! jq -e type >/dev/null 2>&1 <<< "${previous_json}"; then
-    log "WARNING: invalid state file; resetting ${BAN_DETAIL_FILE}"
+    log "WARNING: 状態ファイルが壊れているため作り直します: ${BAN_DETAIL_FILE}"
     previous_json="{}"
   fi
 
@@ -177,7 +177,7 @@ main() {
     [[ -n "${ip:-}" && -n "${jail:-}" ]] || continue
     local key="${ip}|${jail}"
     if ! jq -e --arg key "${key}" 'has($key)' >/dev/null <<< "${previous_json}"; then
-      log "INFO: new ban detected: ${ip} (${jail})"
+      log "INFO: 新しい BAN を検知しました: ${ip} (${jail})"
       events_json="$(
         jq --arg ip "${ip}" --arg jail "${jail}" --arg ts "$(date '+%Y-%m-%d %H:%M:%S')" \
           '. += [{type: "ban", ip: $ip, jail: $jail, timestamp: $ts}]' <<< "${events_json}"
@@ -191,7 +191,7 @@ main() {
     ip="$(jq -r --arg key "${key}" '.[$key].ip // ($key | split("|")[0])' <<< "${previous_json}")"
     jail="$(jq -r --arg key "${key}" '.[$key].jail // ($key | split("|")[1] // "unknown")' <<< "${previous_json}")"
     if ! grep -Fxq "${key}" <<< "${current_bans}"; then
-      log "INFO: unban detected: ${ip} (${jail})"
+      log "INFO: BAN 解除を検知しました: ${ip} (${jail})"
       events_json="$(
         jq --arg ip "${ip}" --arg jail "${jail}" --arg ts "$(date '+%Y-%m-%d %H:%M:%S')" \
           '. += [{type: "unban", ip: $ip, jail: $jail, timestamp: $ts}]' <<< "${events_json}"
@@ -214,7 +214,7 @@ main() {
   done <<< "${current_bans}"
 
   printf '%s\n' "${new_json}" > "${BAN_DETAIL_FILE}"
-  log "INFO: docker-fail2ban-discord.sh complete"
+  log "INFO: docker-fail2ban-discord.sh 完了"
 }
 
 main "$@"

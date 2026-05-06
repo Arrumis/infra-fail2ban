@@ -7,7 +7,7 @@ MARKER="# docker-stack infra-fail2ban Discord notifier"
 CRON_LINE="0 * * * * ${NOTIFIER}"
 
 if [[ ! -x "${NOTIFIER}" ]]; then
-  echo "notifier is not executable: ${NOTIFIER}" >&2
+  echo "通知スクリプトに実行権限がありません: ${NOTIFIER}" >&2
   exit 1
 fi
 
@@ -21,4 +21,4 @@ crontab -l 2>/dev/null | grep -v -F "${MARKER}" | grep -v -F "${CRON_LINE}" > "$
   echo "${CRON_LINE}"
 } | crontab -
 
-echo "Installed hourly fail2ban Discord notifier in the current user's crontab."
+echo "現在のユーザーの crontab に、fail2ban Discord 通知の毎時実行を登録しました。"
