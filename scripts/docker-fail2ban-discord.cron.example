@@ -1,0 +1,6 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Run the fail2ban ban/unban Discord notifier hourly.
+INFRA_FAIL2BAN_DIR=/path/to/infra-fail2ban
+0 * * * * root ${INFRA_FAIL2BAN_DIR}/scripts/docker-fail2ban-discord.sh
