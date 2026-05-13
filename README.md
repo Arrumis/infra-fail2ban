@@ -56,6 +56,12 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ./scripts/docker-fail2ban-discord.sh
 ```
 
+Discord に送らず、通知内容のサンプルだけ確認できます。
+
+```bash
+./scripts/docker-fail2ban-discord.sh --sample
+```
+
 現在のユーザーの cron に毎時実行を入れます。
 
 ```bash
